@@ -1,0 +1,19 @@
+{
+	"ancho":640,
+	"alto":480,
+	"camara":{"origen":[320, 240, -1000],"visionHorizontal":[0, 640],"visionVertical":[480,0]},
+	"antialiasing":false,
+	"salida":"esferas.png",
+	"esferas":[
+		{"posicion":[200.0, 350.0, 100.0],"radio": 100, "material":{"difusa":[1.0, 1.0, 0.0], "reflexion":0.3, "especular":[1.0, 1.0, 1.0], "brillo":60}},
+		{"posicion":[440.0, 290.0, -200.0],"radio": 100, "material":{"difusa":[0.0, 1.0, 1.0], "reflexion":0.3, "especular":[1.0, 1.0, 1.0], "brillo":60}},
+		{"posicion":[320.0, 110.0, 0.0],"radio": 100, "material":{"difusa":[1.0, 0.0, 1.0], "reflexion":0.3, "especular":[1.0, 1.0, 1.0], "brillo":60}}
+	],
+	"planos":[
+	    {"normal":[0,0,-1], "punto":[0,0,250], "material":{"difusa":[0.6, 0.5, 0.5], "reflexion":0.0, "especular":[0.0, 0.0, 0.0], "brillo":1}}
+	],
+	"luces":[
+		{"posicion":[0.0, 240.0, -100.0], "color":[1.0, 1.0, 1.0]},
+		{"posicion":[640.0, 240.0, -10000.0], "color":[0.6, 0.7, 1.0]}
+	]
+}

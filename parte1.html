@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="utf-8">
+		<script type="text/javascript" src="parte1.js"></script>
+	</head>
+	<body>
+		<center>
+			<h1>JSON Printer</h1>
+			<div id="input">
+				<input type="file" id="filesInput" multiple>
+			</div>
+			<div id="tableDiv">
+			<table id="filesTable" border=1>
+				<thead>
+					<tr>
+						<th>
+							Nombre
+						</th>
+						<th>
+							Tamaño
+						</th>
+						<th>
+							Última modificación
+						</th>
+					</tr>
+				</thead>
+				<tbody id="filesTableBody">
+				</tbody>
+			</table>
+			</div>
+		</center>
+			<div id="result" style="border:1px solid; margin-left:100px;margin-right:100px">
+			</div>
+		
+		
+		<script type="text/javascript">
+			
+			function readFiles(event){
+			
+				var files = event.target.files;
+				var filesToRead = {};
+				for(var i=0; i<files.length; i++){
+					if(files[i].type.match('text*')){
+						filesToRead[files[i].name] = files[i];
+						var reader = new FileReader();
+						reader.onload = (function(theFile){
+							return function(event){
+								jsonString = ManageFile(theFile.name, event.target.result);
+							};
+						})(files[i]);
+						reader.readAsText(files[i]);
+					}
+				}
+				drawTable(filesToRead);
+			}
+			
+			function ManageFile(fileName, text){
+				try{
+					jsonObject = JSON.parse(text);
+					jsonString = printJSON(jsonObject);
+					var jsonHTML = document.createElement('span');
+					jsonHTML.innerHTML = "<b>"+fileName+"</b>: "+jsonString;
+					document.getElementById('result').appendChild(jsonHTML);
+	
+				}catch(error){
+					alert("El fichero "+fileName+" no parece contener una estructura JSON válida");
+				}
+			}
+
+			function drawTable(filesToPrint){
+				var tbody = document.getElementById('filesTableBody');
+				var tr = document.createElement('tr');
+				
+				for(fileName in filesToPrint){
+					var file = filesToPrint[fileName];
+					var tr = document.createElement('tr');
+					var name = document.createElement('td');
+					name.innerHTML = file.name;
+					var size = document.createElement('td');
+					size.innerHTML = file.size+" Bytes";
+					var lastModified = document.createElement('td');
+					lastModified.innerHTML = file.lastModifiedDate;
+					tr.appendChild(name);
+					tr.appendChild(size);
+					tr.appendChild(lastModified);
+					tbody.appendChild(tr);
+				}
+			}
+
+			document.getElementById('filesInput').onchange = readFiles;
+		</script>
+		
+	</body>
+</html>
