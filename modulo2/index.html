@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset="utf-8">
+		<script type="text/javascript" src="parte2.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<style>
+			.redRow{
+				background: #EA9999;
+			}
+			
+			*[id$="JSON"]{
+				border:1px solid;
+				width:600px;
+				height:600px;
+				float:left;
+				overflow:auto;
+			}
+		</style>
+	</head>
+	<body>
+		<center>
+			<h1>JSON Printer (jQuery)</h1>
+			<div id="input">
+				<input type="file" id="filesInput">
+				<button id='prettify'>Prettify</button>
+			</div>
+		</center>
+		<div style="width:1204px;margin-left:auto;margin-right:auto">
+			<div contenteditable="true" id="originalJSON">
+			</div>
+			<div contenteditable="true" id="processedJSON">
+			</div>		
+		</div>
+		<script type="text/javascript">
+			
+			function readFiles(event){
+			
+				var files = event.target.files;
+				var filesToRead = {};
+				for(var i=0; i<files.length; i++){
+					if(files[i].type.match('text*')){
+						filesToRead[files[i].name] = files[i];
+						var reader = new FileReader();
+						reader.onload = (function(theFile){
+							return function(event){
+								jsonString = ManageFile(theFile.name, event.target.result);
+							};
+						})(files[i]);
+						reader.readAsText(files[i]);
+					}
+				}
+			}
+			
+			function ManageFile(fileName, text){
+				$('#originalJSON').html(text);
+				Prettify();
+			}
+			
+			function Prettify(){
+				try{
+					jsonObject = JSON.parse($('#originalJSON').html());
+					jsonString = printJSON(jsonObject);
+					$('#processedJSON').html(jsonString);
+				}catch(error){
+					alert("El contenido no parece contener una estructura JSON válida");
+				}
+			}
+			$('#prettify').click(Prettify);
+			$('#filesInput').change(readFiles);
+			
+			$(document).ready(function(){
+				$.ajax({
+					url: "jsonExample.txt",
+					success:function(data) {
+						$('#originalJSON').html(data);
+						Prettify();
+					}
+				});
+			});
+		</script>
+		
+	</body>
+</html>
