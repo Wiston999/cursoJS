@@ -11,5 +11,5 @@ Para ejecutar el cliente, se puede pasar el nombre de usuario como primer parame
 
 Segundo ejercicio
 -----------------
-Implementado en los archivos parte42Server.js y parte42Client.js. Implementa  sistema de tareas en las que se pueden añadir tareas, con su descripcion y su fecha de inicio y f y buscar tareas por su descripcion.
+Implementado en los archivos parte42Server.js y parte42Client.js. Implementa  sistema de tareas en las que se pueden aÃ±adir tareas, con su descripcion y su fecha de inicio y fin y buscar tareas por su descripcion.
 
