@@ -40,7 +40,6 @@ $('#logIn').on('click', function(){
 				globalUserName = userName;
 				$('#loginFormDiv').hide(1000);
 				$('#loggedDiv').show(1000);
-				$('#myModal').modal('show');
 			}
 		},
 		error: function (){
@@ -70,6 +69,8 @@ $('#sendComment').on('click', function(){
 
 $('#postNewComment').on('click', function(){
 	$('#myModal').modal('show');
+	$('#newCommentTitle').html('');
+	$('#newCommentText').html('');
 });
 
 $('#searchComment').on('click', function(){
@@ -84,7 +85,7 @@ $('#searchComment').on('click', function(){
 			printHeader(response);
 			$('#numComments').html('0');
 			if(response.status == 'success'){
-				$('#numComments').html(response.comments.length);
+				$('#numComments').html('0');
 				$('.clickableRow').remove();
 				$('.hiddenRow').remove();
 				for(var i=0; i<response['comments'].length; i++){
@@ -108,7 +109,7 @@ $('#myComments').on('click', function(){
 			if(response.status == 'error'){
 				$('#numComments').html('0');
 			}else{
-				$('#numComments').html(response.comments.length);
+				$('#numComments').html('0');
 				$('.clickableRow').remove();
 				$('.hiddenRow').remove();
 				for(var i=0; i<response['comments'].length; i++){

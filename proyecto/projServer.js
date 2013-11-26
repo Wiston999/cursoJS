@@ -5,6 +5,9 @@ var comments = new Object;
 var fs = require('fs');
 var index = fs.readFileSync('index.html');
 
+var port = process.env.OPENSHIFT_NODEJS_PORT || 8765;
+var ipaddress = process.env.OPENSHIFT_NODEJS_IP || process.env.OPENSHIFT_INTERNAL_IP || '0.0.0.0';
+
 app.use(express.logger());
 
 app.set('case sensitive routing', true);
@@ -136,8 +139,10 @@ app.get('/:username/search/:word', function(req, res){
 app.post('/:username/:title/:comment', function(req, res){
 	var response = new Object;
 	var tmpComment = new Object;
-	tmpComment['title'] = req.params.title;
-	tmpComment['content'] = req.params.comment;
+	/** Solo porque openshift se queja mucho, codifico en base 64**/
+	tmpComment['title'] = new Buffer(req.params.title, 'base64').toString('utf-8');
+	tmpComment['content'] = new Buffer(req.params.comment, 'base64').toString('utf-8');
+	/****************************************/
 	tmpComment['date'] = new Date().getTime();
 	tmpComment['author'] = req.params.username;		//Solo para acceder facil desde el cliente
 	comments[req.params.username].push(tmpComment);
@@ -153,4 +158,4 @@ app.delete('/:username', function(req, res){
 	delete comments[req.params.username];
 	res.send( {status: 'success', description: 'User logged off'} ) ;
 });
-app.listen(8765);
+app.listen(ipaddress, port);
