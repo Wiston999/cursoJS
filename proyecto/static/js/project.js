@@ -1,5 +1,18 @@
+var socket = io.connect();
 
 var globalUserName = null;
+
+socket.on('newUser', function(response){
+	alertify.success(response['data']);
+});
+
+socket.on('byeUser', function(response){
+	alertify.error(response['data']);
+});
+
+socket.on('newPost', function(response){
+	alertify.log(response['data']);
+});
 
 function printHeader(data){
 	if(data.status == 'error'){
@@ -30,9 +43,8 @@ function appendCommentToTable(data){
 
 $('#logIn').on('click', function(){
 	var userName = $('#logInInput').val();
-	console.log(userName);
 	$.ajax({
-		url:'/'+encodeURIComponent(userName),
+		url:'/bloggin/'+encodeURIComponent(userName),
 		type: 'PUT',
 		success:  function (response) {
 			printHeader(response);
@@ -50,14 +62,12 @@ $('#logIn').on('click', function(){
 
 $('#sendComment').on('click', function(){
 	var userName = $('#logInInput').val();
-	var title = $('#newCommentTitle').val();
-	var comment = $('#newCommentText').val();
-
+	var title = encodeURIComponent($('#newCommentTitle').val()).replace(/(%0.)|\?/g, '');	//OpenShift me obliga a quitar estos caracteres y algunos mas que no se reemplazan aqui
+	var comment = encodeURIComponent($('#newCommentText').val()).replace(/(%0.)|\?/g, ''); //OpenShift me obliga a quitar estos caracteres y algunos mas que no se reemplazan aqui
 	$.ajax({
-		url:'/'+encodeURIComponent(userName)+'/'+encodeURIComponent(title)+'/'+encodeURIComponent(comment),
+		url:'/bloggin/'+encodeURIComponent(userName)+'/'+title+'/'+comment,
 		type: 'POST',
 		success:  function (response) {
-			console.log(response);
 			printHeader(response);
 			appendCommentToTable(response['newComment']);
 		},
@@ -78,10 +88,9 @@ $('#searchComment').on('click', function(){
 	var searchStr = $('#searchStr').val();
 	
 	$.ajax({
-		url:'/'+encodeURIComponent(userName)+'/search/'+encodeURIComponent(searchStr),
+		url:'/bloggin/'+encodeURIComponent(userName)+'/search/'+encodeURIComponent(searchStr),
 		type: 'GET',
 		success:  function (response) {
-			console.log(response);
 			printHeader(response);
 			$('#numComments').html('0');
 			if(response.status == 'success'){
@@ -101,10 +110,9 @@ $('#searchComment').on('click', function(){
 
 $('#myComments').on('click', function(){
 	$.ajax({
-		url:'/'+encodeURIComponent(globalUserName),
+		url:'/bloggin/'+encodeURIComponent(globalUserName),
 		type: 'GET',
 		success:  function (response) {
-			console.log(response);
 			printHeader(response);
 			if(response.status == 'error'){
 				$('#numComments').html('0');
@@ -125,9 +133,8 @@ $('#myComments').on('click', function(){
 
 $(window).bind('beforeunload', function() {
 	if(globalUserName != null){
-		console.log('me voy');
 		$.ajax({
-			url:'/'+globalUserName,
+			url:'/bloggin/'+globalUserName,
 			type: 'DELETE',
 			async: false,
 			success:  function (response) {

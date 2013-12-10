@@ -8,7 +8,7 @@ def SendRequest(url, method):
 	data = None
 	if method.lower() in ['put', 'post', 'get', 'delete']:
 		opener = urllib2.build_opener(urllib2.HTTPHandler)
-		request = urllib2.Request('http://proyecto-cursojsasdfasdf.rhcloud.com/%s'%(url))
+		request = urllib2.Request('http://proyecto-cursojsasdfasdf.rhcloud.com/bloggin/%s'%(url))
 		request.get_method = lambda: method
 		data = json.loads(opener.open(request).read())
 	return data

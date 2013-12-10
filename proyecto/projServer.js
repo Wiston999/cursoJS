@@ -1,12 +1,16 @@
-var express = require('express');
-var app = express();
+var port = process.env.OPENSHIFT_NODEJS_PORT || 8765;
+var ipaddress = process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0';
+
+var express = require('express'),
+	app = express(),
+	server = app.listen(port, ipaddress),
+	io = require('socket.io').listen(server);
+
 app.set('title', 'Blogging');
-var comments = new Object;
 var fs = require('fs');
 var index = fs.readFileSync('index.html');
+var comments = new Object;
 
-var port = process.env.OPENSHIFT_NODEJS_PORT || 8765;
-var ipaddress = process.env.OPENSHIFT_NODEJS_IP || process.env.OPENSHIFT_INTERNAL_IP || '0.0.0.0';
 
 app.use(express.logger());
 
@@ -14,7 +18,6 @@ app.set('case sensitive routing', true);
 
 app.configure(function(){
 	app.use('/static', express.static(__dirname + '/static'));
-	
 });
 
 app.get('/*',function(req,res,next){
@@ -36,9 +39,10 @@ app.delete('/*',function(req,res,next){
 	res.header('200', { 'Content-Type': 'application/json' });
 	next();
 });
+//El prefijo 'bloggin' lo utilizo en todas las peticiones para que no interfieran las peticiones de socket.io en las de express
 
 //Un poco de control de errores para que no se pueda acceder a una tarea que no existe
-app.get('/:username/*',function(req,res,next){
+app.get('/bloggin/:username/*',function(req,res,next){
 	res.header('200', { 'Content-Type': 'application/json' });
 	if(req.params.username && comments[req.params.username]){
 		next();
@@ -47,7 +51,7 @@ app.get('/:username/*',function(req,res,next){
 	}
 });
 
-app.post('/:username/*',function(req,res,next){
+app.post('/bloggin/:username/*',function(req,res,next){
 	res.header('200', { 'Content-Type': 'application/json' });
 	if(req.params.username && comments[req.params.username]){
 		next();
@@ -56,7 +60,7 @@ app.post('/:username/*',function(req,res,next){
 	}
 });
 
-app.delete('/:username/*',function(req,res,next){
+app.delete('/bloggin/:username/*',function(req,res,next){
 	res.header('200', { 'Content-Type': 'application/json' });
 	if(req.params.username && comments[req.params.username]){
 		next();
@@ -68,11 +72,10 @@ app.delete('/:username/*',function(req,res,next){
 
 app.get('/', function(req, res){
 	res.writeHead(200, {'Content-Type': 'text/html'});
-	index = fs.readFileSync('index.html');
 	res.end(index);
 });
 
-app.put('/:username', function(req, res){
+app.put('/bloggin/:username', function(req, res){
 	var response = new Object;
 	if(comments[req.params.username]){
 		response['status'] = 'error';
@@ -81,11 +84,12 @@ app.put('/:username', function(req, res){
 		comments[req.params.username] = new Array;
 		response['status'] = 'success';
 		response['description'] = 'User '+req.params.username+' logged in.';
+		io.sockets.emit('newUser', {data: response['description']});
 	}
 	res.send( response );
 });
 
-app.get('/:username', function(req, res){
+app.get('/bloggin/:username', function(req, res){
 	var response = new Object
 	response['status'] = 'success';
 	response['description'] = 'User comments';
@@ -93,7 +97,7 @@ app.get('/:username', function(req, res){
 	res.send( response );
 });
 
-app.get('/:username/users', function(req, res){
+app.get('/bloggin/:username/users', function(req, res){
 	var response = new Object
 	response['status'] = 'success';
 	response['description'] = 'User comments';
@@ -102,7 +106,7 @@ app.get('/:username/users', function(req, res){
 	res.send( response );
 });
 
-app.get('/:username/:searchuser', function(req, res){
+app.get('/bloggin/:username/:searchuser', function(req, res){
 	var response = new Object
 	if(comments[req.params.searchuser]){
 		response['status'] = 'success';
@@ -115,7 +119,7 @@ app.get('/:username/:searchuser', function(req, res){
 	res.send( response );
 });
 
-app.get('/:username/search/:word', function(req, res){
+app.get('/bloggin/:username/search/:word', function(req, res){
 	var response = new Object;
 	var foundComments = new Array;
 	for(var userName in comments){
@@ -136,13 +140,11 @@ app.get('/:username/search/:word', function(req, res){
 	res.send( response );
 });
 
-app.post('/:username/:title/:comment', function(req, res){
+app.post('/bloggin/:username/:title/:comment', function(req, res){
 	var response = new Object;
 	var tmpComment = new Object;
-	/** Solo porque openshift se queja mucho, codifico en base 64**/
-	tmpComment['title'] = new Buffer(req.params.title, 'base64').toString('utf-8');
-	tmpComment['content'] = new Buffer(req.params.comment, 'base64').toString('utf-8');
-	/****************************************/
+	tmpComment['title'] = req.params.title;
+	tmpComment['content'] = req.params.comment;
 	tmpComment['date'] = new Date().getTime();
 	tmpComment['author'] = req.params.username;		//Solo para acceder facil desde el cliente
 	comments[req.params.username].push(tmpComment);
@@ -150,12 +152,12 @@ app.post('/:username/:title/:comment', function(req, res){
 	response['status'] = 'success';
 	response['description'] = 'Comment Posted';
 	response['newComment'] = tmpComment;
-	
+	io.sockets.emit('newPost', {data: 'User '+req.params.username+' posted new comment.'});
 	res.send( response );
 });
 
-app.delete('/:username', function(req, res){
+app.delete('/bloggin/:username', function(req, res){
 	delete comments[req.params.username];
+	io.sockets.emit('byeUser', {data: 'User '+req.params.username+' logged off'});
 	res.send( {status: 'success', description: 'User logged off'} ) ;
 });
-app.listen(ipaddress, port);

@@ -1,8 +1,10 @@
-Segundo Modulo
-=======
-Este ejercicio realiza un proceso similar al primer modulo, puesto que tambien imprime un JSON de forma bonita, sin embargo, en esta ocaon tenemos un apartado en el que se visualiza el JSON en RAW y otro apartado done se encuentra el JSON en "bonito".
+Proyecto
+=========
+El proyecto consiste en una peqna aplicacion de blogging, para utilizarla es necesario establecer un loggin con el cual poder postear nuevos comentarios.
 
-Al principio se carga un JSON por defecto mediante AJAX. Despues es posible cargar un archivo desde disco local, modificar el JSON de ejemplo o crear uno desde 0. Para visualizar el JSON tras modificar o crear uno nuevo es necesario pulsar sobre el boton Prettify.
-
-Este ejercicio se encuentra disponible en: http://wiston999.dyndns.org/cursoJS/modulo2/
-
+Caracteristicas:
+* Utiliza una interfaz REST completa (la interfaz contiene los 4 tipos de mensajes HTML explicados).
+* La aplicacion utiliza socket.io para notificar a los usuarios de nuevos usuarios conectados, desconectados y de nuevos mensajes posteados.
+* Utiliza jQuery, Bootstrap (para una mejor interfaz de usuario) y alertify (para notificaciones mas elegantes de cara a la interfaz de usuario).
+* Se ha incluido un cliente de la aplicaon hecho en Python que junto con el cliente Web utilizan todas las llamadas de la interfaz REST.
+* La aplicacion ha sido subida a OpenShift y se puede ver aqui.
